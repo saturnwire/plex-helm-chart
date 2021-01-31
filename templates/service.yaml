@@ -1,0 +1,63 @@
+{{- if .Values.service.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "plex.fullname" . }}
+  labels:
+    {{- include "plex.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: pms
+      port: {{ .Values.service.port }}
+      targetPort: pms
+      protocol: TCP
+    {{- if .Values.service.components.DLNA.enabled }}
+    - name: dlna-udp
+      port: {{ .Values.service.components.DLNA.portUDP }}
+      targetPort: dlna-udp
+      protocol: UDP
+    - name: dlna-tcp
+      port: {{ .Values.service.components.DLNA.portTCP }}
+      targetPort: dlna-tcp
+      protocol: TCP
+    {{- end }}
+    {{- if .Values.service.components.homeTheater.enabled }}
+    - name: home-theater
+      port: {{ .Values.service.components.homeTheater.port }}
+      targetPort: home-theater
+      protocol: TCP
+    {{- end }}
+    {{- if .Values.service.components.bonjour.enabled }}
+    - name: bonjour
+      port: {{ .Values.service.components.bonjour.port }}
+      targetPort: bonjour
+      protocol: UDP
+    {{- end }}
+    {{- if .Values.service.components.roku.enabled }}
+    - name: roku
+      port: {{ .Values.service.components.roku.port }}
+      targetPort: roku
+      protocol: TCP
+    {{- end }}
+    {{- if .Values.service.components.gdm.enabled }}
+    - name: gdm-1
+      port: {{ .Values.service.components.gdm.ports.gdm1 }}
+      targetPort: gdm-1
+      protocol: UDP
+    - name: gdm-2
+      port: {{ .Values.service.components.gdm.ports.gdm2 }}
+      targetPort: gdm-2
+      protocol: UDP
+    - name: gdm-3
+      port: {{ .Values.service.components.gdm.ports.gdm3 }}
+      targetPort: gdm-3
+      protocol: UDP
+    - name: gdm-4
+      port: {{ .Values.service.components.gdm.ports.gdm4 }}
+      targetPort: gdm-4
+      protocol: UDP
+    {{- end }}      
+  selector:
+    {{- include "plex.selectorLabels" . | nindent 4 }}
+{{- end }}    
