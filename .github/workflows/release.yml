@@ -1,0 +1,21 @@
+name: Release Chart
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Create release
+        run: |
+          curl -OL https://raw.githubusercontent.com/saturnwire/helm-charts/master/scripts/release.sh
+          chmod +x release.sh
+          ./release.sh          
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          HELM_CHARTS_DISPATCH_TOKEN: "${{ secrets.HELM_CHARTS_DISPATCH_TOKEN }}"
