@@ -9,5 +9,5 @@ helm repo add saturnwire https://charts.saturnwire.com
 
 Install chart
 ```
-helm install saturnwire/plex
+helm install plex saturnwire/plex
 ```
