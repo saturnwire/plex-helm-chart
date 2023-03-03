@@ -1,7 +1,11 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "plex.fullname" . -}}
 {{- $svcPort := .Values.service.port -}}
-{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+{{- $kubeVersion := .Capabilities.KubeVersion.Minor -}}
+
+{{- if ge $kubeVersion "22"  -}}
+apiVersion: networking.k8s.io/v1
+{{- else if ge $kubeVersion "14" -}}
 apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
 apiVersion: extensions/v1beta1
@@ -27,15 +31,24 @@ spec:
     {{- end }}
   {{- end }}
   rules:
-    {{- range .Values.ingress.hosts }}
-    - host: {{ .host | quote }}
-      http:
-        paths:
-          {{- range .paths }}
-          - path: {{ . }}
-            backend:
-              serviceName: {{ $fullName }}
-              servicePort: {{ $svcPort }}
+  {{- range .Values.ingress.hosts }}
+  - host: {{ .host | quote }}
+    http:
+      paths:
+        {{- range .paths }}
+        - path: {{ .path | quote }}
+          {{ if ge $kubeVersion "22"  -}}
+          pathType: {{ .pathType }}
+          backend:
+            service:
+              name: {{ $fullName }}
+              port:
+                number: {{ $svcPort }}
+          {{- else -}}
+          backend:
+            serviceName: {{ $fullName }}
+            servicePort: {{ $svcPort }}
           {{- end }}
-    {{- end }}
+        {{- end }}
   {{- end }}
+{{- end }}
